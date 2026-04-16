@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Academic Hub Cards - Sistema de revisão espaçada baseado no algoritmo SM-2 para estudantes da UFERSA">
+    <meta name="keywords" content="flashcards, revisão espaçada, UFERSA, estudos, SM-2, Ebbinghaus">
+    <title>Academic Hub Cards · Revisão Espaçada</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap">
+</head>
+<body>
+    <!-- Decoração de fundo -->
+    <div class="bg-decoration" aria-hidden="true">
+        <div class="grain"></div>
+        <div class="gradient-blob blob-1"></div>
+        <div class="gradient-blob blob-2"></div>
+    </div>
+
+    <!-- Cabeçalho -->
+    <header class="header">
+        <nav class="nav" aria-label="Navegação principal">
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 40 40" width="32" height="32">
+                        <rect x="4" y="8" width="28" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <rect x="8" y="12" width="28" height="22" rx="2" fill="var(--bg-primary)" stroke="currentColor" stroke-width="2"/>
+                        <line x1="13" y1="19" x2="31" y2="19" stroke="currentColor" stroke-width="1.5"/>
+                        <line x1="13" y1="24" x2="27" y2="24" stroke="currentColor" stroke-width="1.5"/>
+                        <line x1="13" y1="29" x2="23" y2="29" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1 class="brand-title">Academic Hub</h1>
+                    <span class="brand-sub">Cards · UFERSA</span>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <button class="tab-btn active" data-view="study" aria-label="Modo estudar">
+                    <span class="tab-icon">◉</span>
+                    <span>Estudar</span>
+                </button>
+                <button class="tab-btn" data-view="manage" aria-label="Gerenciar cards">
+                    <span class="tab-icon">◎</span>
+                    <span>Biblioteca</span>
+                </button>
+                <button class="tab-btn" data-view="stats" aria-label="Ver estatísticas">
+                    <span class="tab-icon">◈</span>
+                    <span>Progresso</span>
+                </button>
+                <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema claro/escuro">
+                    <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"/>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <!-- VIEW: ESTUDAR -->
+        <section class="view view-study active" id="view-study" aria-labelledby="study-title">
+            <div class="study-header">
+                <div class="study-heading">
+                    <span class="eyebrow">Sessão do dia · <span id="currentDate"></span></span>
+                    <h2 class="page-title" id="study-title">
+                        <em>Revisão</em> espaçada
+                    </h2>
+                    <p class="page-description">
+                        Fundamentado na Curva do Esquecimento de Ebbinghaus e no algoritmo SuperMemo-2.
+                        Sua consistência hoje se traduz em retenção de longo prazo.
+                    </p>
+                </div>
+                <div class="study-metrics">
+                    <div class="metric-card">
+                        <span class="metric-value" id="metricDue">0</span>
+                        <span class="metric-label">Para revisar</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value" id="metricDone">0</span>
+                        <span class="metric-label">Revisados hoje</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value" id="metricLimit">20</span>
+                        <span class="metric-label">Limite diário</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área do flashcard -->
+            <div class="flashcard-arena" id="flashcardArena">
+                <!-- Estado: sem cards -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-illustration" aria-hidden="true">
+                        <svg viewBox="0 0 120 120" width="120" height="120" fill="none">
+                            <rect x="20" y="30" width="60" height="45" rx="4" stroke="currentColor" stroke-width="1.5" opacity="0.4" transform="rotate(-8 50 52)"/>
+                            <rect x="30" y="35" width="60" height="45" rx="4" stroke="currentColor" stroke-width="1.5" opacity="0.7"/>
+                            <rect x="40" y="40" width="60" height="45" rx="4" fill="var(--bg-primary)" stroke="currentColor" stroke-width="1.5" transform="rotate(6 70 62)"/>
+                            <line x1="48" y1="55" x2="90" y2="58" stroke="currentColor" stroke-width="1" opacity="0.5" transform="rotate(6 70 62)"/>
+                            <line x1="48" y1="63" x2="82" y2="66" stroke="currentColor" stroke-width="1" opacity="0.5" transform="rotate(6 70 62)"/>
+                            <line x1="48" y1="71" x2="75" y2="74" stroke="currentColor" stroke-width="1" opacity="0.5" transform="rotate(6 70 62)"/>
+                        </svg>
+                    </div>
+                    <h3 class="empty-title">Nenhum card para hoje</h3>
+                    <p class="empty-text">
+                        Você está em dia com suas revisões, ou ainda não criou cards.
+                        Visite a <strong>Biblioteca</strong> para adicionar novos.
+                    </p>
+                    <button class="btn btn-primary" id="emptyCreateBtn">
+                        <span>+ Criar primeiro card</span>
+                    </button>
+                </div>
+
+                <!-- Flashcard ativo -->
+                <article class="flashcard" id="flashcard" style="display:none;">
+                    <div class="flashcard-meta">
+                        <span class="card-category" id="cardCategory">—</span>
+                        <span class="card-progress" id="cardProgress">1 / 1</span>
+                    </div>
+                    <div class="flashcard-inner" id="flashcardInner">
+                        <div class="flashcard-face flashcard-front">
+                            <span class="face-label">Pergunta</span>
+                            <p class="face-content" id="cardQuestion"></p>
+                            <button class="btn btn-reveal" id="revealBtn">
+                                <span>Revelar resposta</span>
+                                <span class="reveal-arrow">↓</span>
+                            </button>
+                        </div>
+                        <div class="flashcard-face flashcard-back">
+                            <span class="face-label">Resposta</span>
+                            <p class="face-content" id="cardAnswer"></p>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Avaliação da resposta -->
+                <div class="review-actions" id="reviewActions" style="display:none;">
+                    <p class="review-prompt">Como foi sua recordação?</p>
+                    <div class="review-buttons">
+                        <button class="review-btn review-wrong" data-grade="errei">
+                            <span class="rb-label">Errei</span>
+                            <span class="rb-interval">1 dia</span>
+                        </button>
+                        <button class="review-btn review-hard" data-grade="dificil">
+                            <span class="rb-label">Difícil</span>
+                            <span class="rb-interval">2 dias</span>
+                        </button>
+                        <button class="review-btn review-good" data-grade="bom">
+                            <span class="rb-label">Bom</span>
+                            <span class="rb-interval">4 dias</span>
+                        </button>
+                        <button class="review-btn review-easy" data-grade="facil">
+                            <span class="rb-label">Fácil</span>
+                            <span class="rb-interval">7 dias</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sessão concluída -->
+                <div class="session-done" id="sessionDone" style="display:none;">
+                    <span class="done-badge">✓ Sessão concluída</span>
+                    <h3 class="done-title">Até amanhã.</h3>
+                    <p class="done-text">Você revisou <strong id="doneCount">0</strong> cards hoje. O algoritmo já reprogramou a próxima aparição de cada um.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: BIBLIOTECA -->
+        <section class="view view-manage" id="view-manage" aria-labelledby="manage-title">
+            <div class="manage-header">
+                <div>
+                    <span class="eyebrow">Seu acervo</span>
+                    <h2 class="page-title" id="manage-title">
+                        <em>Biblioteca</em> de cards
+                    </h2>
+                </div>
+                <button class="btn btn-primary" id="openCreateBtn">
+                    <span>+ Novo card</span>
+                </button>
+            </div>
+
+            <div class="library-controls">
+                <div class="search-box">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <input type="search" id="searchInput" placeholder="Buscar por pergunta, resposta ou categoria..." aria-label="Buscar cards">
+                </div>
+                <div class="filter-chips" id="filterChips" role="tablist" aria-label="Filtrar por categoria">
+                    <button class="chip active" data-filter="all">Todos</button>
+                </div>
+            </div>
+
+            <div class="cards-grid" id="cardsGrid" role="list">
+                <!-- Cards injetados via JS -->
+            </div>
+
+            <div class="library-empty" id="libraryEmpty" style="display:none;">
+                <p>Nenhum card encontrado. Crie o primeiro!</p>
+            </div>
+        </section>
+
+        <!-- VIEW: PROGRESSO -->
+        <section class="view view-stats" id="view-stats" aria-labelledby="stats-title">
+            <div class="stats-header">
+                <span class="eyebrow">Análise de desempenho</span>
+                <h2 class="page-title" id="stats-title">
+                    Seu <em>progresso</em>
+                </h2>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-block stat-large">
+                    <span class="stat-label">Total de cards</span>
+                    <span class="stat-value" id="statTotal">0</span>
+                    <span class="stat-sub">na biblioteca</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-label">Categorias</span>
+                    <span class="stat-value" id="statCategories">0</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-label">Para hoje</span>
+                    <span class="stat-value" id="statDue">0</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-label">Dominados</span>
+                    <span class="stat-value" id="statMastered">0</span>
+                    <span class="stat-sub">intervalo ≥ 7 dias</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-label">Em aprendizado</span>
+                    <span class="stat-value" id="statLearning">0</span>
+                    <span class="stat-sub">intervalo &lt; 7 dias</span>
+                </div>
+            </div>
+
+            <div class="categories-breakdown">
+                <h3 class="section-heading">Distribuição por categoria</h3>
+                <div class="category-list" id="categoryList">
+                    <!-- Injetado via JS -->
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3 class="info-heading">Sobre o algoritmo SM-2</h3>
+                <p class="info-text">
+                    O <strong>SuperMemo-2</strong>, desenvolvido por Piotr Woźniak em 1985, é um dos
+                    algoritmos mais influentes de repetição espaçada. Ele se baseia na
+                    <strong>Curva do Esquecimento</strong> de Hermann Ebbinghaus (1885), que demonstra
+                    que a retenção de informações decai exponencialmente com o tempo — mas cada
+                    recordação bem-sucedida expande o intervalo até o próximo esquecimento.
+                </p>
+                <p class="info-text">
+                    O limite diário de <strong>20 cards</strong> respeita a <strong>Teoria da Carga
+                    Cognitiva</strong> de John Sweller (1988), evitando sobrecarga da memória de trabalho.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de criação/edição -->
+    <div class="modal-overlay" id="modalOverlay" role="dialog" aria-labelledby="modal-title" aria-modal="true" aria-hidden="true">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Novo card</h3>
+                <button class="modal-close" id="modalClose" aria-label="Fechar modal">×</button>
+            </div>
+            <form class="modal-form" id="cardForm">
+                <input type="hidden" id="cardId">
+                <div class="form-group">
+                    <label for="inputCategoria">Categoria</label>
+                    <input type="text" id="inputCategoria" list="categoriasList" placeholder="ex: Cálculo, JavaScript, Circuitos..." required maxlength="40">
+                    <datalist id="categoriasList"></datalist>
+                </div>
+                <div class="form-group">
+                    <label for="inputPergunta">Pergunta</label>
+                    <textarea id="inputPergunta" rows="3" placeholder="O que você quer recordar?" required maxlength="500"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="inputResposta">Resposta</label>
+                    <textarea id="inputResposta" rows="4" placeholder="A informação que deve ser retida." required maxlength="1000"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" id="modalCancel">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar card</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast de notificações -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
